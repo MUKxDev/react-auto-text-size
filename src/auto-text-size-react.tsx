@@ -1,8 +1,8 @@
 import React, {
   DetailedHTMLProps,
   HTMLAttributes,
+  JSX,
   ReactElement,
-  ReactHTML,
   useCallback,
   useEffect,
   useRef,
@@ -21,14 +21,21 @@ export function AutoTextSize({
   children,
   ...rest
 }: Options & {
-  as?: keyof ReactHTML | React.ComponentType<any>;
+  as?: React.ComponentType<any> | keyof JSX.IntrinsicElements;
 } & DetailedHTMLProps<
     HTMLAttributes<HTMLDivElement>,
     HTMLDivElement
   >): ReactElement {
-  const updateTextSizeRef = useRef<ReturnType<typeof autoTextSize>>();
+  const updateTextSizeRef = useRef<ReturnType<typeof autoTextSize> | null>(
+    null
+  );
 
-  useEffect(() => updateTextSizeRef.current?.(), [children]);
+  // In React 19, useEffect has changed to use a more explicit cleanup syntax
+  useEffect(() => {
+    return () => {
+      updateTextSizeRef.current?.();
+    };
+  }, [children]);
 
   const refCallback = useCallback(
     (innerEl: HTMLElement | null) => {
